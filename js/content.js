@@ -19,17 +19,3 @@ let CONTENT_SECTIONS = {};
 
 // ✅ Copiază tot codul de mai sus în js/content.js
 
-// Content sections - vor fi populate după decriptare
-let CONTENT_SECTIONS = {};
-
-/*
- * INSTRUCȚIUNI DE UTILIZARE:
- * 
- * 1. Deschide encrypt-content.html într-un browser (LOCAL, nu pe GitHub!)
- * 2. Introdu parola ta (aceeași cu care te vei loga în aplicație)
- * 3. Copiază conținutul fiecărei secțiuni în câmpurile respective
- * 4. Click pe "Encriptează Tot Conținutul"
- * 5. Copiază output-ul și înlocuiește ENCRYPTED_CONTENT de mai sus
- * 6. Push la GitHub - nimeni nu va putea citi conținutul fără parola ta
- */
-};
