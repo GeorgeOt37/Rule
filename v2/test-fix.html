@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Fix PWA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="data.js"></script>
+    <style>
+        body { font-family: monospace; background: #1a1a1a; color: #C9A961; padding: 20px; }
+        .result { background: #2a2a2a; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Fix PWA - Hardcoded Password</h1>
+    
+    <div class="result">
+        <h3>Test cu parola "CuPutere"</h3>
+        <button onclick="testWithPassword()">Test Decriptare</button>
+        <div id="result"></div>
+    </div>
+    
+    <div class="result">
+        <h3>Test Manual</h3>
+        <input type="password" id="manualPassword" placeholder="Introdu parola..." value="CuPutere">
+        <button onclick="testManual()">Test Manual</button>
+        <div id="manualResult"></div>
+    </div>
+
+    <script>
+        function testWithPassword() {
+            const password = "CuPutere";
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                if (typeof ENCRYPTED_CONTENT === 'undefined') {
+                    resultDiv.innerHTML = '<span class="error">❌ ENCRYPTED_CONTENT nu e definit!</span>';
+                    return;
+                }
+                
+                const testSection = 'preambul';
+                const encryptedData = ENCRYPTED_CONTENT[testSection];
+                
+                if (!encryptedData) {
+                    resultDiv.innerHTML = '<span class="error">❌ Nu găsesc secțiunea preambul!</span>';
+                    return;
+                }
+                
+                console.log('Testing with password:', password);
+                console.log('Encrypted data length:', encryptedData.length);
+                
+                const decrypted = CryptoJS.AES.decrypt(encryptedData, password);
+                const text = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                if (text && text.length > 0) {
+                    resultDiv.innerHTML = `
+                        <span class="success">✅ SUCCES!</span><br>
+                        Lungime text decriptat: ${text.length}<br>
+                        Primele 200 caractere:<br>
+                        <div style="background: #333; padding: 10px; margin: 10px 0; border-radius: 3px; white-space: pre-wrap;">${text.substring(0, 200)}...</div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ Decriptare eșuată - text gol!</span>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Eroare: ${error.message}</span>`;
+                console.error('Test error:', error);
+            }
+        }
+        
+        function testManual() {
+            const password = document.getElementById('manualPassword').value;
+            const resultDiv = document.getElementById('manualResult');
+            
+            if (!password) {
+                resultDiv.innerHTML = '<span class="error">❌ Introdu o parolă!</span>';
+                return;
+            }
+            
+            try {
+                const testSection = 'preambul';
+                const encryptedData = ENCRYPTED_CONTENT[testSection];
+                
+                const decrypted = CryptoJS.AES.decrypt(encryptedData, password);
+                const text = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                if (text && text.length > 0) {
+                    resultDiv.innerHTML = `
+                        <span class="success">✅ Parola "${password}" FUNCȚIONEAZĂ!</span><br>
+                        Lungime: ${text.length} caractere<br>
+                        Preview: ${text.substring(0, 100)}...
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Parola "${password}" nu funcționează!</span>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Eroare cu "${password}": ${error.message}</span>`;
+            }
+        }
+        
+        // Auto-test la încărcare
+        window.addEventListener('load', () => {
+            setTimeout(testWithPassword, 500);
+        });
+    </script>
+</body>
+</html>
