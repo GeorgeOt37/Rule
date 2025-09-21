@@ -62,6 +62,8 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         
         // Redirect după 1 secundă
         setTimeout(() => {
+            sessionStorage.setItem('authenticated', 'true');
+            sessionStorage.setItem('userPassword', password);
             window.location.href = 'app.html';
         }, 1000);
     } else {
@@ -69,8 +71,9 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         const isValid = await verifyPassword(password);
         
         if (isValid) {
-            // Parola corectă
+            // Parola corectă - salvează și parola pentru decriptare
             sessionStorage.setItem('authenticated', 'true');
+            sessionStorage.setItem('userPassword', password);
             window.location.href = 'app.html';
         } else {
             // Parola incorectă
@@ -102,5 +105,6 @@ document.getElementById('password-input').addEventListener('keypress', (e) => {
 // Helper pentru logout (va fi folosit în app.html)
 function logout() {
     sessionStorage.removeItem('authenticated');
+    sessionStorage.removeItem('userPassword');
     window.location.href = 'index.html';
 }

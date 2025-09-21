@@ -10,37 +10,81 @@ const contentArea = document.getElementById('content-area');
 // Funcție pentru decriptarea conținutului
 async function decryptContent(encryptedData, password) {
     try {
-        // Pentru demo, returnăm direct conținutul
-        // În producție, aici ar fi logica de decriptare AES
-        return encryptedData;
+        // Folosim CryptoJS pentru decriptare
+        const decrypted = CryptoJS.AES.decrypt(encryptedData, password);
+        const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+        
+        if (!decryptedText) {
+            throw new Error('Decriptarea a eșuat - parola incorectă sau date corupte');
+        }
+        
+        return decryptedText;
     } catch (error) {
         console.error('Eroare la decriptare:', error);
-        return null;
+        return `<p>Eroare la încărcarea conținutului. Verifică parola și încearcă din nou.</p>`;
     }
 }
 
 // Funcție pentru încărcarea secțiunii
-function loadSection(sectionId) {
+async function loadSection(sectionId) {
     // Actualizează tab-urile active
     document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
     
-    // Încarcă conținutul secțiunii
-    if (CONTENT_SECTIONS[sectionId]) {
+    // Verifică dacă avem conținut encriptat pentru această secțiune
+    if (ENCRYPTED_CONTENT[sectionId]) {
+        try {
+            // Încearcă să obții parola din sessionStorage
+            const password = sessionStorage.getItem('userPassword');
+            
+            if (!password) {
+                // Dacă nu avem parola salvată, redirectează la login
+                sessionStorage.removeItem('authenticated');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Afișează loading
+            contentArea.innerHTML = `
+                <section class="section active" id="${sectionId}">
+                    <p>Se încarcă conținutul...</p>
+                </section>
+            `;
+            
+            // Decriptează conținutul
+            const decryptedContent = await decryptContent(ENCRYPTED_CONTENT[sectionId], password);
+            
+            // Afișează conținutul decriptat
+            contentArea.innerHTML = `
+                <section class="section active" id="${sectionId}">
+                    ${decryptedContent}
+                </section>
+            `;
+            
+            // Scroll la început
+            window.scrollTo(0, 0);
+            
+            // Salvează secțiunea curentă
+            currentSection = sectionId;
+            localStorage.setItem('lastSection', sectionId);
+            
+        } catch (error) {
+            console.error('Eroare la încărcarea secțiunii:', error);
+            contentArea.innerHTML = `
+                <section class="section active" id="${sectionId}">
+                    <p>Eroare la încărcarea conținutului. Te rog relogarează-te.</p>
+                </section>
+            `;
+        }
+    } else {
+        // Secțiune inexistentă
         contentArea.innerHTML = `
             <section class="section active" id="${sectionId}">
-                ${CONTENT_SECTIONS[sectionId]}
+                <p>Conținutul pentru această secțiune nu este disponibil.</p>
             </section>
         `;
-        
-        // Scroll la început
-        window.scrollTo(0, 0);
-        
-        // Salvează secțiunea curentă
-        currentSection = sectionId;
-        localStorage.setItem('lastSection', sectionId);
     }
 }
 
@@ -56,6 +100,7 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 document.getElementById('logout-btn').addEventListener('click', () => {
     if (confirm('Sigur vrei să ieși?')) {
         sessionStorage.removeItem('authenticated');
+        sessionStorage.removeItem('userPassword');
         window.location.href = 'index.html';
     }
 });
