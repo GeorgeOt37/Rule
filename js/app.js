@@ -1,5 +1,5 @@
-// DEBUG: Log authentication status
-console.log('=== PWA DEBUG: Authentication Check ===');
+// DEBUG: Log authentication status - UPDATED VERSION
+console.log('=== PWA DEBUG: Authentication Check - V2 ===');
 console.log('Authenticated:', sessionStorage.getItem('authenticated'));
 console.log('User password available:', !!sessionStorage.getItem('userPassword'));
 
