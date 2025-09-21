@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Simple - Regula PWA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body { 
+            font-family: monospace; 
+            background: #1a1a1a; 
+            color: #C9A961; 
+            margin: 20px; 
+            line-height: 1.6;
+        }
+        .section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #C9A961; 
+            border-radius: 5px;
+        }
+        input[type="password"] {
+            background: #2a2a2a;
+            color: #C9A961;
+            border: 1px solid #C9A961;
+            padding: 10px;
+            width: 300px;
+        }
+        button {
+            background: #C9A961;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .result {
+            background: #2a2a2a;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Simple - Regula PWA</h1>
+    
+    <div class="section">
+        <h3>1. Test CryptoJS</h3>
+        <button onclick="testCrypto()">Test CryptoJS Library</button>
+        <div id="crypto-result" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h3>2. Test cu Parola Ta</h3>
+        <input type="password" id="test-password" placeholder="Introdu parola ta...">
+        <button onclick="testDecryption()">Test Decriptare</button>
+        <div id="decrypt-result" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h3>3. Verifică Conținutul Encriptat</h3>
+        <button onclick="checkContent()">Verifică content.js</button>
+        <div id="content-result" class="result"></div>
+    </div>
+
+    <script src="js/content.js"></script>
+    <script>
+        function testCrypto() {
+            const resultDiv = document.getElementById('crypto-result');
+            
+            if (typeof CryptoJS === 'undefined') {
+                resultDiv.innerHTML = '❌ CryptoJS nu este încărcat!';
+                return;
+            }
+            
+            // Test simple de encriptare/decriptare
+            const testText = "Test message";
+            const testPassword = "testpass123";
+            
+            try {
+                const encrypted = CryptoJS.AES.encrypt(testText, testPassword).toString();
+                const decrypted = CryptoJS.AES.decrypt(encrypted, testPassword).toString(CryptoJS.enc.Utf8);
+                
+                if (decrypted === testText) {
+                    resultDiv.innerHTML = '✅ CryptoJS funcționează corect!';
+                } else {
+                    resultDiv.innerHTML = '❌ CryptoJS nu decriptează corect!';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '❌ Eroare CryptoJS: ' + error.message;
+            }
+        }
+        
+        function testDecryption() {
+            const password = document.getElementById('test-password').value;
+            const resultDiv = document.getElementById('decrypt-result');
+            
+            if (!password) {
+                resultDiv.innerHTML = '❌ Introdu parola!';
+                return;
+            }
+            
+            if (typeof ENCRYPTED_CONTENT === 'undefined') {
+                resultDiv.innerHTML = '❌ ENCRYPTED_CONTENT nu este definit!';
+                return;
+            }
+            
+            let results = [];
+            
+            for (const [section, encryptedData] of Object.entries(ENCRYPTED_CONTENT)) {
+                try {
+                    const decrypted = CryptoJS.AES.decrypt(encryptedData, password);
+                    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                    
+                    if (decryptedText) {
+                        results.push(`✅ ${section}: ${decryptedText.length} caractere`);
+                    } else {
+                        results.push(`❌ ${section}: Decriptare eșuată (parolă greșită?)`);
+                    }
+                } catch (error) {
+                    results.push(`❌ ${section}: Eroare - ${error.message}`);
+                }
+            }
+            
+            resultDiv.innerHTML = results.join('<br>');
+        }
+        
+        function checkContent() {
+            const resultDiv = document.getElementById('content-result');
+            
+            if (typeof ENCRYPTED_CONTENT === 'undefined') {
+                resultDiv.innerHTML = '❌ ENCRYPTED_CONTENT nu este definit în content.js!';
+                return;
+            }
+            
+            const sections = Object.keys(ENCRYPTED_CONTENT);
+            let results = [`✅ ENCRYPTED_CONTENT este definit`, `Secțiuni găsite: ${sections.length}`];
+            
+            sections.forEach(section => {
+                const data = ENCRYPTED_CONTENT[section];
+                const isPlaceholder = data.includes('placeholder');
+                const length = data.length;
+                
+                if (isPlaceholder) {
+                    results.push(`⚠️ ${section}: Placeholder (${length} chars)`);
+                } else {
+                    results.push(`✅ ${section}: Conținut real (${length} chars)`);
+                }
+            });
+            
+            resultDiv.innerHTML = results.join('<br>');
+        }
+        
+        // Auto-test la încărcare
+        window.addEventListener('load', () => {
+            testCrypto();
+            checkContent();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug PWA - Regula</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #C9A961;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(25, 25, 25, 0.8);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid rgba(201, 169, 97, 0.3);
+        }
+        h1, h2 {
+            color: #C9A961;
+            border-bottom: 1px solid rgba(201, 169, 97, 0.3);
+            padding-bottom: 10px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(15, 15, 15, 0.8);
+            border-radius: 4px;
+            border: 1px solid rgba(201, 169, 97, 0.2);
+        }
+        .debug-output {
+            background: #1a1a1a;
+            border: 1px solid rgba(201, 169, 97, 0.3);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: rgba(201, 169, 97, 0.2);
+            color: #C9A961;
+            border: 1px solid #C9A961;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            margin: 5px;
+        }
+        button:hover {
+            background: rgba(201, 169, 97, 0.3);
+        }
+        input[type="password"] {
+            background: #1a1a1a;
+            color: #C9A961;
+            border: 1px solid rgba(201, 169, 97, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            width: 300px;
+            margin: 10px;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .warning { color: #ffd43b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug PWA - Regula Fratelui</h1>
+        
+        <div class="debug-section">
+            <h2>1. Test Password & Decryption</h2>
+            <input type="password" id="testPassword" placeholder="Enter your password...">
+            <button onclick="testPassword()">Test Password</button>
+            <div id="passwordTest" class="debug-output"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>2. Check ENCRYPTED_CONTENT</h2>
+            <button onclick="checkContent()">Check Content Structure</button>
+            <div id="contentCheck" class="debug-output"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>3. Test Individual Sections</h2>
+            <button onclick="testSection('preambul')">Test Preambul</button>
+            <button onclick="testSection('dimineata')">Test Dimineata</button>
+            <button onclick="testSection('ziua')">Test Ziua</button>
+            <button onclick="testSection('seara')">Test Seara</button>
+            <button onclick="testSection('urgenta')">Test Urgenta</button>
+            <button onclick="testSection('vizualizare')">Test Vizualizare</button>
+            <div id="sectionTest" class="debug-output"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>4. Browser Console</h2>
+            <p>Open your browser's Developer Tools (F12) and check the Console tab for additional debug information.</p>
+            <p><strong>Live PWA:</strong> <a href="https://georgeot37.github.io/Rule/app.html" target="_blank">https://georgeot37.github.io/Rule/app.html</a></p>
+        </div>
+        
+        <div class="debug-section">
+            <h2>5. Common Issues & Solutions</h2>
+            <ul>
+                <li><strong>Password Mismatch:</strong> Ensure the password used for encryption matches exactly</li>
+                <li><strong>Content Loading:</strong> Check if content.js is properly loaded</li>
+                <li><strong>CryptoJS Missing:</strong> Verify CryptoJS library is loaded</li>
+                <li><strong>Browser Cache:</strong> Try hard refresh (Ctrl+Shift+R)</li>
+                <li><strong>HTTPS Required:</strong> PWA requires HTTPS to work properly</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="js/content.js"></script>
+    <script>
+        let testPasswordValue = '';
+        
+        function log(elementId, message, type = 'normal') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            element.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        function testPassword() {
+            const password = document.getElementById('testPassword').value;
+            testPasswordValue = password;
+            
+            log('passwordTest', '=== PASSWORD TEST ===');
+            log('passwordTest', `Password length: ${password.length}`);
+            
+            if (!password) {
+                log('passwordTest', 'Please enter a password!', 'error');
+                return;
+            }
+            
+            if (typeof CryptoJS === 'undefined') {
+                log('passwordTest', 'CryptoJS not loaded!', 'error');
+                return;
+            }
+            
+            log('passwordTest', 'CryptoJS loaded successfully', 'success');
+            
+            // Test with a simple encryption/decryption
+            try {
+                const testText = "Hello, World! This is a test.";
+                const encrypted = CryptoJS.AES.encrypt(testText, password).toString();
+                const decrypted = CryptoJS.AES.decrypt(encrypted, password).toString(CryptoJS.enc.Utf8);
+                
+                log('passwordTest', `Test encryption/decryption: ${decrypted === testText ? 'SUCCESS' : 'FAILED'}`, decrypted === testText ? 'success' : 'error');
+                log('passwordTest', `Original: ${testText}`);
+                log('passwordTest', `Decrypted: ${decrypted}`);
+            } catch (error) {
+                log('passwordTest', `Test encryption failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkContent() {
+            log('contentCheck', '=== CONTENT STRUCTURE CHECK ===');
+            
+            if (typeof ENCRYPTED_CONTENT === 'undefined') {
+                log('contentCheck', 'ENCRYPTED_CONTENT is not defined!', 'error');
+                log('contentCheck', 'Check if js/content.js is properly loaded', 'warning');
+                return;
+            }
+            
+            log('contentCheck', 'ENCRYPTED_CONTENT is defined', 'success');
+            
+            const sections = Object.keys(ENCRYPTED_CONTENT);
+            log('contentCheck', `Available sections (${sections.length}): ${sections.join(', ')}`);
+            
+            sections.forEach(section => {
+                const content = ENCRYPTED_CONTENT[section];
+                log('contentCheck', `${section}: ${content ? content.substring(0, 50) + '...' : 'EMPTY'}`, content ? 'success' : 'error');
+            });
+            
+            // Check required sections
+            const requiredSections = ['preambul', 'dimineata', 'ziua', 'seara', 'urgenta', 'vizualizare'];
+            const missingSections = requiredSections.filter(section => !ENCRYPTED_CONTENT[section]);
+            
+            if (missingSections.length > 0) {
+                log('contentCheck', `Missing sections: ${missingSections.join(', ')}`, 'error');
+            } else {
+                log('contentCheck', 'All required sections present', 'success');
+            }
+        }
+        
+        function testSection(sectionName) {
+            log('sectionTest', `=== TESTING SECTION: ${sectionName.toUpperCase()} ===`);
+            
+            if (!testPasswordValue) {
+                log('sectionTest', 'Please test password first!', 'error');
+                return;
+            }
+            
+            if (typeof ENCRYPTED_CONTENT === 'undefined' || !ENCRYPTED_CONTENT[sectionName]) {
+                log('sectionTest', `Section "${sectionName}" not found in ENCRYPTED_CONTENT!`, 'error');
+                return;
+            }
+            
+            const encryptedContent = ENCRYPTED_CONTENT[sectionName];
+            log('sectionTest', `Encrypted content length: ${encryptedContent.length}`);
+            
+            try {
+                const decrypted = CryptoJS.AES.decrypt(encryptedContent, testPasswordValue);
+                const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                if (decryptedText) {
+                    log('sectionTest', `Decryption SUCCESS for ${sectionName}`, 'success');
+                    log('sectionTest', `Decrypted content length: ${decryptedText.length}`);
+                    log('sectionTest', `First 200 chars: ${decryptedText.substring(0, 200)}...`);
+                } else {
+                    log('sectionTest', `Decryption FAILED for ${sectionName} - empty result`, 'error');
+                    log('sectionTest', 'This usually means wrong password or corrupted data', 'warning');
+                }
+            } catch (error) {
+                log('sectionTest', `Decryption ERROR for ${sectionName}: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-check content on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkContent();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

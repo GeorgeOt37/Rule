@@ -176,11 +176,39 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Function to test decryption with a simple test
+function testDecryption() {
+    console.log('=== PWA DEBUG: Testing Decryption ===');
+    const password = sessionStorage.getItem('userPassword');
+    if (!password) {
+        console.log('No password available for testing');
+        return;
+    }
+    
+    // Test with real encrypted data
+    const realData = ENCRYPTED_CONTENT.preambul;
+    
+    console.log('Testing with real preambul data...');
+    try {
+        const result = CryptoJS.AES.decrypt(realData, password);
+        const decryptedText = result.toString(CryptoJS.enc.Utf8);
+        console.log('Test decryption result length:', decryptedText.length);
+        console.log('Test decryption success:', decryptedText.length > 0);
+        console.log('First 100 chars:', decryptedText.substring(0, 100));
+    } catch (error) {
+        console.error('Test decryption failed:', error);
+    }
+}
+
 // Încarcă ultima secțiune vizitată sau prima
 window.addEventListener('load', () => {
     console.log('=== PWA DEBUG: Page Load ===');
     const lastSection = localStorage.getItem('lastSection') || 'preambul';
     console.log('Loading section on page load:', lastSection);
+    
+    // Test decryption after a short delay to ensure everything is loaded
+    setTimeout(testDecryption, 1000);
+    
     loadSection(lastSection);
 });
 
@@ -188,7 +216,7 @@ window.addEventListener('load', () => {
 window.addEventListener('beforeunload', (e) => {
     if (currentSection !== 'preambul') {
         e.preventDefault();
-        e.returnValue = '';
+        return '';
     }
 });
 
