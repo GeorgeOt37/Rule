@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Live PWA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h1>Test Live - Verifică GitHub Pages</h1>
+    <div id="result"></div>
+    
+    <script>
+        async function testLive() {
+            const resultDiv = document.getElementById('result');
+            let results = [];
+            
+            // Test 1: CryptoJS
+            results.push(typeof CryptoJS !== 'undefined' ? '✅ CryptoJS loaded' : '❌ CryptoJS failed');
+            
+            // Test 2: Fetch content.js
+            try {
+                const response = await fetch('js/content.js');
+                const text = await response.text();
+                results.push(text.includes('ENCRYPTED_CONTENT') ? '✅ content.js loaded' : '❌ content.js missing ENCRYPTED_CONTENT');
+                results.push(`Content.js size: ${text.length} characters`);
+            } catch (error) {
+                results.push(`❌ Failed to fetch content.js: ${error.message}`);
+            }
+            
+            // Test 3: Fetch app.js
+            try {
+                const response = await fetch('js/app.js');
+                const text = await response.text();
+                results.push(text.includes('decryptContent') ? '✅ app.js has decryptContent' : '❌ app.js missing decryptContent');
+                results.push(`App.js size: ${text.length} characters`);
+            } catch (error) {
+                results.push(`❌ Failed to fetch app.js: ${error.message}`);
+            }
+            
+            resultDiv.innerHTML = results.join('<br>');
+        }
+        
+        testLive();
+    </script>
+</body>
+</html>
