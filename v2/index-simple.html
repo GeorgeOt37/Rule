@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Regula</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="sacred-symbol">☦</div>
+        
+        <h1 class="login-title">Regula</h1>
+        
+        <form id="login-form" class="login-form">
+            <input 
+                type="password" 
+                id="password-input" 
+                class="password-input" 
+                placeholder="Fraza ta secretă"
+                autocomplete="off"
+                spellcheck="false"
+                required
+            >
+            <button type="submit" class="login-button">
+                <span class="button-text">Intră</span>
+                <div class="button-overlay"></div>
+            </button>
+        </form>
+        
+        <div id="error-message" class="error-message"></div>
+        
+        <div class="login-footer">
+            <p class="login-quote">"Cel care păzește gura și limba sa, își păzește sufletul de necazuri."</p>
+            <p class="login-verse">- Proverbe 21:23</p>
+        </div>
+    </div>
+    
+    <script>
+        // SIMPLU: Singura parolă corectă e "CuPutere"
+        const CORRECT_PASSWORD = "CuPutere";
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const passwordInput = document.getElementById('password-input');
+            const errorMessage = document.getElementById('error-message');
+            const password = passwordInput.value.trim();
+            
+            if (password === CORRECT_PASSWORD) {
+                // Parolă corectă! 
+                sessionStorage.setItem('authenticated', 'true');
+                sessionStorage.setItem('userPassword', CORRECT_PASSWORD);
+                window.location.href = 'app-simple.html';
+            } else {
+                // Parolă greșită
+                errorMessage.textContent = 'Parolă incorectă. Încearcă din nou.';
+                errorMessage.classList.add('show');
+                passwordInput.value = '';
+                
+                // Ascunde mesajul după 3 secunde
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 3000);
+            }
+        });
+
+        // Auto-focus
+        window.addEventListener('load', () => {
+            document.getElementById('password-input').focus();
+        });
+    </script>
+</body>
+</html>

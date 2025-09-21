@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Regula</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-symbol">☦</div>
+                <h1 class="app-title">REGULA PERSONALĂ</h1>
+                <p class="app-subtitle">Ghid de Reconstrucție Zilnică</p>
+            </div>
+            
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-section="preambul">Preambul</button>
+                <button class="nav-tab" data-section="dimineata">Dimineața</button>
+                <button class="nav-tab" data-section="ziua">Ziua</button>
+                <button class="nav-tab" data-section="seara">Seara</button>
+                <button class="nav-tab" data-section="urgenta">Protocoale</button>
+                <button class="nav-tab" data-section="vizualizare">Pauza Prânz</button>
+            </nav>
+        </header>
+        
+        <main class="content-container">
+            <div id="content-area">
+                <section class="section active">
+                    <p>Se încarcă conținutul...</p>
+                </section>
+            </div>
+        </main>
+        
+        <button id="logout-btn" class="logout-btn" title="Ieșire">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </button>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="data.js"></script>
+    <script>
+        // Singura parolă validă
+        const PASSWORD = "CuPutere";
+        
+        // Verifică autentificarea
+        if (!sessionStorage.getItem('authenticated')) {
+            window.location.href = 'index-simple.html';
+        }
+
+        let currentSection = 'preambul';
+        const contentArea = document.getElementById('content-area');
+
+        // Decriptare simplă
+        function decrypt(encryptedData) {
+            try {
+                const decrypted = CryptoJS.AES.decrypt(encryptedData, PASSWORD);
+                const text = decrypted.toString(CryptoJS.enc.Utf8);
+                return text || '<p style="color: #ff6b6b;">Eroare la decriptare.</p>';
+            } catch (error) {
+                return '<p style="color: #ff6b6b;">Eroare: Nu pot accesa conținutul.</p>';
+            }
+        }
+
+        // Încarcă secțiunea
+        function loadSection(sectionId) {
+            // Actualizează tab-urile
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            
+            // Găsește conținutul encriptat
+            const encryptedContent = ENCRYPTED_CONTENT[sectionId];
+            if (!encryptedContent) {
+                contentArea.innerHTML = '<section class="section active"><p>Secțiune inexistentă.</p></section>';
+                return;
+            }
+            
+            // Decriptează și afișează
+            const decryptedContent = decrypt(encryptedContent);
+            contentArea.innerHTML = `<section class="section active">${decryptedContent}</section>`;
+            
+            // Scroll la început
+            window.scrollTo(0, 0);
+            currentSection = sectionId;
+            localStorage.setItem('lastSection', sectionId);
+        }
+
+        // Event listeners pentru navigare
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const sectionId = e.target.getAttribute('data-section');
+                loadSection(sectionId);
+            });
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            if (confirm('Sigur vrei să ieși?')) {
+                sessionStorage.clear();
+                window.location.href = 'index-simple.html';
+            }
+        });
+
+        // Încarcă prima secțiune
+        window.addEventListener('load', () => {
+            const lastSection = localStorage.getItem('lastSection') || 'preambul';
+            loadSection(lastSection);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '6') {
+                e.preventDefault();
+                const sections = ['preambul', 'dimineata', 'ziua', 'seara', 'urgenta', 'vizualizare'];
+                const index = parseInt(e.key) - 1;
+                if (sections[index]) {
+                    loadSection(sections[index]);
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                document.getElementById('logout-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>
