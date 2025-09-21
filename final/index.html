@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Regula</title>
+    <link rel="manifest" href="manifest.json?v=20250121">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=20250121">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="sacred-symbol">☦</div>
+        
+        <h1 class="login-title">Regula</h1>
+        
+        <form id="login-form" class="login-form" onsubmit="return handleLogin(event)">
+            <input 
+                type="password" 
+                id="password-input" 
+                class="password-input" 
+                placeholder="Fraza ta secretă"
+                autocomplete="off"
+                spellcheck="false"
+                required
+            >
+            <button type="submit" class="login-button">
+                <span class="button-text">Intră</span>
+                <div class="button-overlay"></div>
+            </button>
+        </form>
+        
+        <div id="error-message" class="error-message"></div>
+        
+        <div class="login-footer">
+            <p class="login-quote">"Cel care păzește gura și limba sa, își păzește sufletul de necazuri."</p>
+            <p class="login-verse">- Proverbe 21:23</p>
+        </div>
+    </div>
+    
+    <script>
+        // Clear any old cache
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => {
+                    caches.delete(name);
+                });
+            });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('password-input').value.trim();
+            const errorMessage = document.getElementById('error-message');
+            
+            if (password === "CuPutere") {
+                sessionStorage.setItem('authenticated', 'true');
+                sessionStorage.setItem('timestamp', Date.now());
+                window.location.href = 'app.html?t=' + Date.now();
+            } else {
+                errorMessage.textContent = 'Parolă incorectă. Încearcă din nou.';
+                errorMessage.classList.add('show');
+                document.getElementById('password-input').value = '';
+                
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 3000);
+            }
+            
+            return false;
+        }
+
+        window.addEventListener('load', () => {
+            document.getElementById('password-input').focus();
+        });
+    </script>
+</body>
+</html>
