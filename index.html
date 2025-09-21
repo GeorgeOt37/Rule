@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Regula</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=EB+Garamond:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="sacred-symbol">☦</div>
+        
+        <h1 class="login-title">Regula Personală</h1>
+        
+        <div class="login-verse">
+            <p>"Intrați pe poarta cea strâmtă"</p>
+            <cite>- Matei 7:13</cite>
+        </div>
+        
+        <form id="login-form" class="login-form">
+            <input 
+                type="password" 
+                id="password-input" 
+                class="password-input" 
+                placeholder="Fraza ta secretă"
+                autocomplete="off"
+                spellcheck="false"
+            >
+            <button type="submit" class="login-button">
+                <span>Intră</span>
+            </button>
+        </form>
+        
+        <div id="error-message" class="error-message"></div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+</body>
+</html>
